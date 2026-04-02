@@ -1,0 +1,55 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type Holding = Database['public']['Tables']['holdings']['Row'];
+
+export const useHoldings = (userId?: string) => {
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchHoldings = async () => {
+      const { data, error } = await supabase
+        .from('holdings')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setHoldings(data);
+      }
+      setLoading(false);
+    };
+
+    fetchHoldings();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('holdings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'holdings',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          fetchHoldings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
+
+  return { holdings, loading };
+};

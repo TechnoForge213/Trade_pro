@@ -1,0 +1,26 @@
+import Hero from "@/components/Hero";
+import MarketOverview from "@/components/MarketOverview";
+import PricingSection from "@/components/PricingSection";
+
+const Index = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <Hero />
+      <MarketOverview />
+      <PricingSection />
+      
+      {/* Footer */}
+      <footer className="border-t border-border py-8 px-4 md:px-6">
+        <div className="container max-w-6xl mx-auto text-center text-sm text-muted-foreground">
+          <p className="mb-2">© 2025 OmniTrade.AI. All rights reserved.</p>
+          <p className="text-xs">
+            Trading involves risk. All trading is at the user's own risk. 
+            Users under 18 can only access demo accounts.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Index;
